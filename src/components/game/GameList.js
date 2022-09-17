@@ -1,30 +1,41 @@
-import React, { useEffect } from "react"
-import { getGames } from "./GameManager.js"
+//Fist Visiable information on page appers to house content seen on screen when rendered
+import React, { useEffect, useState } from "react"
+import { useHistory, useParams, Link } from 'react-router-dom'
+import { getGames, deleteGame } from "./GameManager.js"
+import "./Game.css"
+import { GameCard } from "./GameCar.js"
 
 export const GameList = (props) => {
     const [ games, setGames ] = useState([])
+    const history = useHistory();
+    const {gameId} = useParams();
 
     useEffect(() => {
         getGames().then(data => setGames(data))
     }, [])
 
+    const delGame = (gameId) => {
+        deleteGame(gameId)
+            .then(() => getGames().then(setGames));
+    }
+
     return (
         <article className="games">
-            <button className="btn btn-2 btn-sep icon-create"
-    onClick={() => {
-        history.push({ pathname: "/games/new" })
-    }}
-        >Register New Game</button>
-        
-            {
-                games.map(game => {
-                    return <section key={`game--${game.id}`} className="game">
-                        <div className="game__title">{game.title} by {game.maker}</div>
-                        <div className="game__players">{game.number_of_players} players needed</div>
-                        <div className="game__skillLevel">Skill level is {game.skill_level}</div>
-                    </section>
-                })
-            }
+            <h2>List of games</h2>
+            <button className="btn" id="createBtn"
+                onClick={() => {
+                    history.push({ pathname: "/games/new" })
+                }}
+            >Register New Games
+            </button>
+            {games.map(game => 
+                <GameCard
+                key={game.id}
+                game={game}
+                delGame={delGame} />
+            )}
+
+            
         </article>
     )
 }
